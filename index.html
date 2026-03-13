@@ -1,1 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 
+<style>
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #f4f7f6;
+    padding: 15px;
+  }
+
+  .card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    transition: transform 0.2s;
+  }
+
+  .title {
+    font-weight: bold;
+    font-size: 19px;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    white-space: pre-wrap;
+  }
+
+  .condition {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+  }
+
+  .deadline {
+    color: #e74c3c;
+    font-size: 13px;
+    font-weight: bold;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  /* ✅ 버튼 스타일 추가 */
+  .link-btn {
+    display: block;
+    text-align: center;
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background 0.3s;
+  }
+
+  .link-btn:hover {
+    background-color: #2980b9;
+  }
+
+  /* 링크가 없을 때 보여줄 스타일 */
+  .no-link {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="jobs">로딩중...</div>
+
+<script>
+  const sheetID = "1osgsPaHMGJAGOND6_2j0dlFTIhLwwE_xaL0gfwG_P0w";
+  const sheetName = "시트1"; 
+
+  fetch(`https://opensheet.elk.sh/${sheetID}/${sheetName}`)
+    .then(res => {
+      if (!res.ok) throw new Error("데이터를 가져올 수 없습니다.");
+      return res.json();
+    })
+    .then(data => {
+      let html = "";
+      data.forEach(row => {
+        // ✅ '링크' 열에 주소가 있는지 확인
+        const linkUrl = row.링크 || "";
+        const hasLink = linkUrl.startsWith("http");
+
+        html += `
+          <div class="card">
+            <div class="title">${row.취업처 || '공고명 없음'}</div>
+            <div class="condition">${row.조건 || ''}</div>
+            <div class="deadline">📅 ${row.기한 || ''}</div>
+            
+            ${hasLink 
+              ? `<a href="${linkUrl}" target="_blank" class="link-btn">공고 상세보기</a>`
+              : `<span class="link-btn no-link">등록된 링크 없음</span>`
+            }
+          </div>
+        `;
+      });
+      document.getElementById("jobs").innerHTML = html;
+    })
+    .catch(err => {
+      document.getElementById("jobs").innerHTML = "오류 발생: " + err.message;
+      console.error(err);
+    });
+</script>
+
+</body>
+</html>
